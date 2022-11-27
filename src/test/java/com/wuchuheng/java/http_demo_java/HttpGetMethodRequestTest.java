@@ -73,4 +73,44 @@ public class HttpGetMethodRequestTest {
         System.out.println(headers);
         System.out.println(response);
     }
+
+    @Test
+    void httpPostTest() throws IOException {
+        // 1 请求参数url序列化
+        Map<String, String> params = new HashMap<>();
+        params.put("foo", "1");
+        params.put("bar", "2");
+        String paramsUrlStr = convertParamsToUrlParams(params);
+        URL obj = new URL("http://localhost:8080/?" + paramsUrlStr);
+        // 2 TCP 连接handler
+        HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+        con.setDoOutput(true);
+        // 3 GET 请求方式
+        con.setRequestMethod("POST");
+        con.setDoInput(true);
+        con.setRequestProperty("Content-Type", "application/json");
+        // 3.1 设置请求体参数
+        String requestBodyJson = "{\"body1\": 1, \"body2\": 2}";
+        DataOutputStream out = new DataOutputStream(con.getOutputStream());
+        out.writeBytes(requestBodyJson);
+        out.flush();
+        out.close();
+        // 4 获取响应头部
+        Map<String, List<String>> headers = con.getHeaderFields();
+        // 5 获取响应状态码
+        int responseCode = con.getResponseCode();
+        BufferedReader in = new BufferedReader( new InputStreamReader(con.getInputStream()));
+        String inputLine;
+        // 6 获取响应内容
+        StringBuilder response = new StringBuilder();
+        while ((inputLine = in.readLine()) != null) {
+            response.append(inputLine);
+        }
+        // 7 关闭连接和缓存
+        in.close();
+        con.disconnect();
+        System.out.println(responseCode);
+        System.out.println(headers);
+        System.out.println(response);
+    }
 }
